@@ -22,17 +22,19 @@ bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, f
 	return true;
 }
 
+
+
 class RGBColor {
+public:
+    RGBColor() {}
+    RGBColor(unsigned int r_, unsigned int g_, unsigned int b_): r(r_), g(g_), b(b_){}
 	unsigned int r, g, b;
 };
 
-class GeomObj {
 
-};
-
-
-class ThreeDVector : GeomObj {
+class ThreeDVector {
 public:
+	ThreeDVector() {}
 	ThreeDVector(double x_, double y_, double z_) { x = x_; y = y_; z = z_; }
 	double len() {
 		return sqrt(x * x + y * y + z * z);
@@ -68,15 +70,25 @@ float scalar_multiply(ThreeDVector& a, ThreeDVector& b) {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-class Ray : GeomObj {
-public:
-	ThreeDVector start;
-	ThreeDVector dir;
+
+struct Ray{
+    ThreeDVector start;
+    ThreeDVector dir;
+    Ray() {}	
+    Ray(ThreeDVector start_, ThreeDVector dir_) : start(start_), dir(dir_) {};		
 };
 
-class Sphere : GeomObj {
+class GeomObj {
 public:
-	Sphere(RGBColor color_, ThreeDVector center_) : color(color_), center(center_) {};
+    GeomObj() {}	
+    GeomObj(RGBColor color_) : color(color_){}
+    virtual pair<bool, ThreeDVector> ray_intersect(Ray r);
+    RGBColor color;
+};
+
+class Sphere : public GeomObj {
+public:
+    Sphere(ThreeDVector center_, double r_, RGBColor color_) : GeomObj(color_), center(center_), r(r_) {};
 
 	pair<bool, ThreeDVector> ray_intersect(Ray ray) {
 		float t0, t1; // solutions for t if the ray intersects 
@@ -101,16 +113,16 @@ public:
 	
 	}
 
-	RGBColor color;
 	ThreeDVector center;
 	double r;
 };
 
-class Triangle : GeomObj {
+class Triangle : public GeomObj {
 public:
-	Triangle(ThreeDVector a_, ThreeDVector b_, ThreeDVector c_) : a(a_), b(b_), c(c_) {};
+    Triangle(ThreeDVector a_, ThreeDVector b_, ThreeDVector c_) : GeomObj(RGBColor(0, 0, 0)), a(a_), b(b_), c(c_) {};
+    Triangle(ThreeDVector a_, ThreeDVector b_, ThreeDVector c_, RGBColor color_) : GeomObj(color_), a(a_), b(b_), c(c_) {};
 
-	pair<bool, ThreeDVector> ray_intersect(Ray ray) {
+    pair<bool, ThreeDVector> ray_intersect(Ray ray) {
 		ThreeDVector res(0, 0, 0);
 		auto N = normal_vector();
 
@@ -172,7 +184,7 @@ public:
 
 };
 
-class Quadrilateral : GeomObj {
+class Quadrilateral : public GeomObj {
 	ThreeDVector vertexes[4];
 	
 	void to_format(){
@@ -212,7 +224,3 @@ class Quadrilateral : GeomObj {
 	
 };
 
-class Scene {
-	vector<GeomObj> objects;
-
-};
