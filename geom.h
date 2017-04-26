@@ -2,17 +2,18 @@
 #include <vector>
 #include <math.h>
 
+
 using namespace std;
 
 const double EPS = 0.001;
 
-bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, float &x1)
+bool solveQuadratic(const double &a, const double &b, const double &c, double &x0, double &x1)
 {
-	float discr = b * b - 4 * a * c;
+    double discr = b * b - 4 * a * c;
 	if (discr < 0) return false;
 	else if (discr == 0) x0 = x1 = -0.5 * b / a;
 	else {
-		float q = (b > 0) ?
+        double q = (b > 0) ?
 			-0.5 * (b + sqrt(discr)) :
 			-0.5 * (b - sqrt(discr));
 		x0 = q / a;
@@ -31,10 +32,9 @@ public:
     RGBColor(unsigned int r_, unsigned int g_, unsigned int b_): r(r_), g(g_), b(b_){}
 	unsigned int r, g, b;
     void add(double a){
-
-            r = (r + (int)a) < 255 ? (r + (unsigned int)a) : 255;
-            g = (g + (int)a) < 255 ? (g + (unsigned int)a) : 255;
-            b = (b + (int)a) < 255 ? (b + (unsigned int)a) : 255;
+            r = (r + (int)a) < 255 ? (r + (int)a) : 255;
+            g = (g + (int)a) < 255 ? (g + (int)a) : 255;
+            b = (b + (int)a) < 255 ? (b + (int)a) : 255;
         }
 };
 
@@ -53,7 +53,7 @@ public:
 		z /= l;
 	}
 
-	ThreeDVector operator * (float a) {
+    ThreeDVector operator * (double a) {
 		return ThreeDVector(a * x, a * y, a * z);
 	}
 
@@ -73,7 +73,7 @@ ThreeDVector vector_multiply(ThreeDVector& a, ThreeDVector& b) {
 	return ThreeDVector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-float scalar_multiply(ThreeDVector& a, ThreeDVector& b) {
+double scalar_multiply(ThreeDVector& a, ThreeDVector& b) {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
@@ -103,28 +103,80 @@ public:
             return pnt - center;
         }
 
-	pair<bool, ThreeDVector> ray_intersect(Ray ray) {
-		float t0, t1; // solutions for t if the ray intersects 
+    pair<bool, ThreeDVector> ray_intersect(Ray ray) {
+        double t0, t1; // solutions for t if the ray intersects
 		ThreeDVector L = ray.start - center;
-		float a = scalar_multiply(ray.dir, ray.dir);
-		float b = 2 * scalar_multiply(ray.dir, L);
-		float c = scalar_multiply(L, L) - r * r;
+        double a = scalar_multiply(ray.dir, ray.dir);
+        double b = 2 * scalar_multiply(ray.dir, L);
+        double c = scalar_multiply(L, L) - r * r;
 
 		if (!solveQuadratic(a, b, c, t0, t1)) 
 			return{ false, center };
 
-		if (t0 > t1) 
-			std::swap(t0, t1);
+        float min_t  = min(t0,t1);
+        float max_t = max(t0,t1);
 
-		if (t0 < 0) {
-			t0 = t1; // if t0 is negative, let's use t1 instead 
-			if (t0 < 0) 
-				return{ false, center }; // both t0 and t1 are negative 
-		}
+        float t = (min_t >= 0) ? min_t : max_t;
+        if (t>0) return{true, ray.start + ray.dir * t};
+        else return{false, center};
 
-		return{ true, ray.start + ray.dir * t0 };
+        //if (t0 > t1)
+        //	std::swap(t0, t1);
+
+        //if (t0 < 0) {
+        //	t0 = t1; // if t0 is negative, let's use t1 instead
+        //	if (t0 < 0)
+        //		return{ false, center }; // both t0 and t1 are negative
+        //}
+
+        //return{ true, ray.start + ray.dir * t0 };
 	
-	}
+    }
+
+
+
+
+
+
+
+
+
+//------------------------------------
+/*pair <bool,ThreeDVector> ray_intersect(Ray ray) {
+    ThreeDVector intersect;
+    double offset = -scalar_multiply(ray.dir, center);
+    double t = -(scalar_multiply(ray.dir, ray.start) + offset)/(ray.dir.len());
+
+
+    ThreeDVector projection = ray.start + ray.dir * t;
+
+    ThreeDVector v_inter = projection - center;
+
+    double offsetInsideSphere = sqrt((r*r - v_inter.len())/ray.dir.len());
+
+    t -= offsetInsideSphere;
+
+    //check case if start point inside sphere
+    if(t < 0) {
+        t += (offsetInsideSphere * 2);
+    }
+
+    //case if Sphere in other side of ray
+    if(t < 0) {
+        return make_pair(false, center);
+    }
+
+    intersect = ray.start + ray.dir * t;
+
+    if(v_inter.len() < r * r) {
+        return make_pair(true, intersect);
+    }
+    else {
+        return make_pair(false, center);
+    }
+}*/
+
+
 
 	ThreeDVector center;
 	double r;
@@ -142,18 +194,18 @@ public:
 		// Step 1: finding P
 
 		// check if ray and plane are parallel ?
-		float NdotRayDirection = scalar_multiply(N, ray.dir);
+        double NdotRayDirection = scalar_multiply(N, ray.dir);
 		if (fabs(NdotRayDirection) < EPS) 
 			return{ false, res }; // they are parallel so they don't intersect ! 
 
 		// compute d parameter using equation 2
-		float d = scalar_multiply(N, a);
+        double d = -scalar_multiply(N, a);
 
 		// compute t (equation 3)
-		float t = (scalar_multiply(N, ray.start) + d) / NdotRayDirection;
+        double t = - (scalar_multiply(N, ray.start) + d) / NdotRayDirection;
 		// check if the triangle is in behind the ray
 		if (t < 0) 
-			return { false, res }; // the triangle is behind 
+            return { false, ThreeDVector(1, 1, 1) }; // the triangle is behind
 
 								 // compute the intersection ThreeDVector using equation 1
 		auto P = ray.start + ray.dir * t;
@@ -233,7 +285,7 @@ class Quadrilateral : public GeomObj {
 		// Step 1: finding P
 
 		// check if ray and plane are parallel ?
-		float NdotRayDirection = scalar_multiply(N, ray.dir);
+        double NdotRayDirection = scalar_multiply(N, ray.dir);
 		if (fabs(NdotRayDirection) < EPS) 
 			return{ false, res }; // they are parallel so they don't intersect !
 		

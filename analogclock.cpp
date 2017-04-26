@@ -42,7 +42,7 @@
       ThreeDVector eye(5, -50, 10);
       auto s1 = new Sphere(ThreeDVector(20, 20, 20), 10, RGBColor(255, 0, 0));
       auto s2 = new Sphere(ThreeDVector(40, 40, 40), 10, RGBColor(0, 0, 255));
-      auto tri1 = new Triangle(ThreeDVector(20, 20, 20), ThreeDVector(40, 40, 40), ThreeDVector(30, 50, 50), RGBColor(209, 11, 75));
+      auto tri1 = new Triangle(ThreeDVector(20, 20, 20), ThreeDVector(40, 40, 40), ThreeDVector(30, 50, 50), RGBColor(0, 255, 0));
       auto candle = new LightSource(1000, ThreeDVector(20, 20, 50)); //20 20 50
       //auto candle2 = new PointLightSource(ThreeDVector(25, -20, 20), 70000); //20 20 50
       obj.push_back(s1);
