@@ -3,7 +3,8 @@ QT += widgets
   HEADERS       = \
     analogclock.h \
     geom.h \
-    scene.h
+    scene.h \
+    light.h
   SOURCES       = \
                   main.cpp \
     analogclock.cpp

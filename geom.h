@@ -30,6 +30,12 @@ public:
     RGBColor() {}
     RGBColor(unsigned int r_, unsigned int g_, unsigned int b_): r(r_), g(g_), b(b_){}
 	unsigned int r, g, b;
+    void add(double a){
+
+            r = (r + (int)a) < 255 ? (r + (unsigned int)a) : 255;
+            g = (g + (int)a) < 255 ? (g + (unsigned int)a) : 255;
+            b = (b + (int)a) < 255 ? (b + (unsigned int)a) : 255;
+        }
 };
 
 
@@ -85,12 +91,17 @@ public:
     GeomObj(){};
     GeomObj(RGBColor color_) : color(color_){}
     virtual pair<bool, ThreeDVector> ray_intersect(Ray r) = 0;
+    virtual ThreeDVector normal_in_point(ThreeDVector point) = 0;
     RGBColor color;
 };
 
 class Sphere : public GeomObj {
 public:
     Sphere(ThreeDVector center_, double r_, RGBColor color_) : GeomObj(color_), center(center_), r(r_) {};
+
+    ThreeDVector normal_in_point(ThreeDVector pnt){
+            return pnt - center;
+        }
 
 	pair<bool, ThreeDVector> ray_intersect(Ray ray) {
 		float t0, t1; // solutions for t if the ray intersects 
@@ -182,6 +193,10 @@ public:
 		return nv;
 	}
 
+    ThreeDVector normal_in_point(ThreeDVector point){
+        return this->normal_vector();
+    }
+
 	ThreeDVector a, b, c;
 
 };
@@ -193,7 +208,16 @@ class Quadrilateral : public GeomObj {
 
 	}
 
-	ThreeDVector normal_vector() {
+    ThreeDVector normal_vector(){
+        ThreeDVector a = vertexes[0]; ThreeDVector b = vertexes[1]; ThreeDVector c = vertexes[2];
+        auto side1 = b - a;
+        auto side2 = c - a;
+        auto nv = vector_multiply(side1, side2);
+        nv.normalize();
+        return nv;
+    }
+
+    ThreeDVector normal_in_point(ThreeDVector Point) {
 		ThreeDVector a = vertexes[0]; ThreeDVector b = vertexes[1]; ThreeDVector c = vertexes[2];
 		auto side1 = b - a;
 		auto side2 = c - a;
