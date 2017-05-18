@@ -1,9 +1,10 @@
-QT += widgets
+ QT += widgets
 
   HEADERS       = \
     analogclock.h \
     geom.h \
     scene.h \
+    utils.h \
     light.h
   SOURCES       = \
                   main.cpp \
@@ -13,4 +14,4 @@ QT += widgets
 
   # install
   target.path = $$[QT_INSTALL_EXAMPLES]/widgets/widgets/analogclock
-INSTALLS += target
+  INSTALLS += target
